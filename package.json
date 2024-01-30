@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "desktop application for analyzing chess games",
   "main": "main.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",

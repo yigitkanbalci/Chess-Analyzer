@@ -76,6 +76,7 @@ body {
     margin-bottom: 20px;
     width: 100%;
     margin-left: 10px;
+    flex-direction: column;
 }
 
 ul {
@@ -151,6 +152,10 @@ li:hover {
     background: #F8F8F8;
 }
 
+.fl-table tr:hover {
+    background-color: #f7ba24;
+    cursor: pointer;
+}
 
 
 .logo-text {

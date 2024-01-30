@@ -14,6 +14,12 @@ function updateActiveGamesDisplay() {
         activeGames.forEach(game => {
             const row = gamesTable.insertRow();
             row.innerHTML = `<td>${game.id}</td><td>${game.player1}</td><td>${game.player2}</td><td>${game.lastmove}</td>`;
+
+            row.addEventListener('click', () => {
+                // Navigate to the game's page
+                // Assuming you have a URL pattern like '/game/{gameId}'
+                window.location.href = 'game.html'
+            });
         });
         noActiveGames.classList.add('hidden');
     } else {
