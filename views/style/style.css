@@ -1,0 +1,76 @@
+/* styles.css */
+body, html {
+    height: 100%;
+    margin: 0;
+    font-family: 'Arial', sans-serif;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.hero {
+    /* Use flex to align the image as needed, add appropriate padding/margin */
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero img {
+    max-width: 100%;
+    height: auto;
+    /* Additional styling to match the design */
+}
+
+.content {
+    flex: 1;
+    text-align: center;
+    /* Additional styling for spacing and layout */
+}
+
+.content h1 {
+    font-size: 3em;
+    /* Additional styling for the title */
+}
+
+.content p {
+    font-size: 1.5em;
+    /* Additional styling for the subtitle */
+}
+
+#startButton {
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 24px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: #b35f00;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+    /* Additional styling to match the design */
+}
+
+#startButton:hover {
+    background-color: #f7ba24;
+}
+
+#startButton:active {
+    background-color: #f7ba24;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px)
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+

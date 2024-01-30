@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <script src="https://kit.fontawesome.com/329b19c47c.js" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Germania+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style/home.css">
+
+
+</head>
+<body>
+    <div class="top-bar">
+        <img src="../images/ChessMaster 2.png" alt="Logo" class="logo">
+        <h1 class="logo-text">ChessMaster</h1>
+    </div>
+    <div class="content-wrapper">
+    <div class="container">
+        <div class="sidebar">
+            <ul>
+                <li><a href="#" class="nav-link">
+                    <span class="item-icon">
+                        <i class="fa-solid fa-chess-board"></i>
+                    </span>
+                    <span class="item-txt">
+                        Dashboard
+                    </span>
+                </a></li>
+                <li><a href="#" class="nav-link">
+                    <span class="item-icon">
+                        <i class="fa-solid fa-chess-knight"></i>
+                    </span>
+                    <span class="item-txt">
+                        Now Playing
+                    </span>
+                </a></li>
+                <li><a href="#" class="nav-link">
+                    <span class="item-icon">
+                        <i class="fa-solid fa-clock"></i>
+                    </span>
+                    <span class="item-txt">
+                        Game History
+                    </span>
+                </a></li>
+                <li><a href="#" class="nav-link">
+                    <span class="item-icon">
+                        <i class="fa-solid fa-book"></i>
+                    </span>
+                    <span class="item-txt">
+                        Learn Chess
+                    </span>
+                </a></li>
+                <li><a href="#" class="nav-link">
+                    <span class="item-icon">
+                        <i class="fa-solid fa-circle-question"></i>
+                    </span>
+                    <span class="item-txt">
+                        About
+                    </span>
+                </a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="main-content">
+     <div class="overview">
+        <h3 class="title-text">Overview</h3>
+     </div>    
+     <div class="active-games">
+
+        <div class="active-games-body">
+        <h5>Running Games</h5>
+
+        <br>
+        <div class="table-wrapper">
+        <table id="gamesTable" class="fl-table">
+            <thead>
+                <tr>
+                    <th>Game ID</th>
+                    <th>Player 1</th>
+                    <th>Player 2</th>
+                    <th>Status</th>
+                    <!-- Add more headers if needed -->
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Active games will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        <div id="noActiveGames" class="hidden">
+            <p>There are no active games.</p>
+            <button id="startNewGame">Start a New Game</button>
+        </div>
+    </div>
+    </div>
+     </div>
+    </div>
+</div>
+<script src="function/home.js"></script>
+</body>
+</html>

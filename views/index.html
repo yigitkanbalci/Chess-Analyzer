@@ -1,18 +1,21 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
-    <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Hello World!</title>
-  </head>
-  <body>
-    <h1>Hello World!</h1>
-    We are using Node.js <span id="node-version"></span>,
-    Chromium <span id="chrome-version"></span>,
-    and Electron <span id="electron-version"></span>.
-
-    <script src="./renderer.js"></script>
-
-  </body>
+    <title>ChessMaster - Real-time Chess Analysis</title>
+    <link rel="stylesheet" href="style/style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <img src="../images/Image.png" alt="ChessMaster">
+        </div>
+        <div class="content">
+            <h1>Welcome to ChessMaster</h1>
+            <p>Real-time Game Analysis</p>
+            <button id="startButton"><a href="home.html">Get Started</a></button>
+        </div>
+    </div>
+    <script src="function/script.js"></script>
+</body>
 </html>
