@@ -1,6 +1,7 @@
 const { app, BrowserWindow, ipcMain} = require('electron');
 const fileURLToPath = require('url');
 const path = require('path');
+const axios = require('axios')
 
 
 let win;
@@ -23,6 +24,16 @@ const createWindow = () => {
     }
   });
 }
+
+ipcMain.handle('send-api-request', async () => {
+  try {
+    const response = await axios.get('http://www.chessdb.cn/chessdb.php?action=querybest&board=rnbakabnr/9/1c5c1/p1p1p1p1p/9/9/P1P1P1P1P/1C5C1/9/RNBAKABNR w');
+    return response.data;
+} catch (error) {
+    console.error('API request failed:', error);
+    throw error; // This will be caught in the .catch block in game.js
+}
+});
 
 const createOrReuseModalWindow = (url) => {
   if (modal && !modal.isDestroyed()) {

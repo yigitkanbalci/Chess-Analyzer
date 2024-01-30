@@ -17,7 +17,6 @@ function updateActiveGamesDisplay() {
 
             row.addEventListener('click', () => {
                 // Navigate to the game's page
-                // Assuming you have a URL pattern like '/game/{gameId}'
                 window.location.href = 'game.html'
             });
         });

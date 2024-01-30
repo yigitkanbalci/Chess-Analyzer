@@ -23,7 +23,9 @@
     "electron": "^28.2.0"
   },
   "dependencies": {
+    "@chrisoakman/chessboardjs": "^1.0.0",
     "app": "^0.1.0",
+    "axios": "^1.6.7",
     "browser-window": "^0.4.0",
     "electron-squirrel-startup": "^1.0.0",
     "node-fetch": "^2.6.1"
