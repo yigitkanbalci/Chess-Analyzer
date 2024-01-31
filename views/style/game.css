@@ -1,0 +1,138 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: sans-serif;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    background-color: rgb(255, 255, 255);
+}
+
+.content-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+#chessboard {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#board1 {
+}
+
+#eval-button {
+    margin-left: 10px;
+    display: inline-block;
+    padding: 15px 25px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: #b35f00;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+}
+
+#eval-button:hover {
+    background-color: #f7ba24;
+}
+
+#eval-button:active {
+    background-color: #f7ba24;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px)
+}
+
+#book-icon {
+    margin-right: 5px;
+}
+
+.gameboard {
+    padding-left: 100px;
+    padding-right: 100px;
+    padding-bottom: 30px;
+    border-left: thin ridge #333;
+    border-right: thin ridge #333;
+    border-bottom: thin ridge #333;
+    
+}
+
+.game-status {
+    display: flex;
+    justify-content: space-between;
+}
+
+.container {
+    margin-top: 100px;
+    border: none;
+    display: flex;
+    background-color: #fff;
+}
+
+.top-bar {
+    height: 100px;
+    background-color: #333;
+    color: white;
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    z-index: 1000;
+    width: 100%;
+    position: fixed;
+}
+
+.sidebar {
+    width: 60px;
+    height: 100%;
+    background-color: #b35f00;
+    padding: 20px;
+    box-sizing: border-box;
+    color: #fff;
+    overflow: hidden;
+    white-space: nowrap;
+    transition: width .75s ease;
+}
+.sidebar:hover{
+    width: 200px;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
+li {
+    padding: 10px 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+li:hover {
+    background-color: #444;
+}
+.nav-link {
+    display: inline-flex;
+    column-gap: 1rem;
+    color: inherit;
+    text-decoration: none;
+}
+.item-txt{
+    padding-left: .5rem;
+}
+.attribute{
+    position: absolute;
+    bottom: 10px;
+}
+
+.logo {
+    height: 90px;
+    width: auto;
+}
+
