@@ -58,13 +58,23 @@ body {
     
 }
 
-.square-55d63.highlight-white {
+.square-55d63.highlight-white-legal {
     background-color: rgba(44, 224, 8, 0.5);
     box-shadow: inset 0 0 10px #000;
 }
 
-.square-55d63.highlight-black {
+.square-55d63.highlight-black-legal {
     background-color: rgba(44, 224, 8, 0.5);
+    box-shadow: inset 0 0 10px #fff;
+}
+
+.square-55d63.highlight-white-best {
+    background-color: rgb(210, 171, 0);
+    box-shadow: inset 0 0 10px #000;
+}
+
+.square-55d63.highlight-black-best {
+    background-color: rgba(210, 171, 0);
     box-shadow: inset 0 0 10px #fff;
 }
 

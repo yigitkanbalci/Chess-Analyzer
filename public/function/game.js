@@ -8,6 +8,7 @@ var  config = {
     position: 'start',
     draggable: true,
     onDrop: onDrop,
+    onDragStart: onDragStart,
 }
 
 const board1 = Chessboard('board1', config);
@@ -24,8 +25,8 @@ function suggestMove(moveString) {
    window.ChessAPI.showMove(moveString).then(response => {
     var move = response.move
     clearHighlights();
-    highlightSquare(move.from, move.color === 'w' ? 'white' : 'black');
-    highlightSquare(move.to, move.color === 'w' ? 'white' : 'black');
+    highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
+    highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
    }).catch(error => {
     console.log(error);
    });
@@ -33,14 +34,15 @@ function suggestMove(moveString) {
 
 function clearHighlights() {
     document.querySelectorAll('.' + squareClass).forEach(square => {
-        square.classList.remove('highlight-white', 'highlight-black');
+        square.classList.remove('highlight-white-legal', 'highlight-black-legal');
+        square.classList.remove('highlight-white-best', 'highlight-black-best');
     });
 }
 
-function highlightSquare(square, color) {
+function highlightSquare(square, color, mode) {
     const squareElement = document.querySelector('.square-' + square);
     if (squareElement) {
-        squareElement.classList.add('highlight-' + color);
+        squareElement.classList.add('highlight-' + color + '-' + mode);
     }
 }
 
@@ -71,13 +73,23 @@ evalButton.addEventListener('click', () => {
 
 function onDrop (source, target, piece, newPos, oldPos, orientation) {
     let moveString = source.concat('-', target);
-    console.log(moveString);
     window.ChessAPI.makeMove(moveString).then(response => {
         turn = response.turn;
         changeTurn(turn);
         clearHighlights();
-        console.log(response.state);
     }).catch(error => {
+        clearHighlights();
+        console.log(error);
+    });
+  }
+
+  function onDragStart(source, piece) {
+    window.ChessAPI.legalMoves(source).then(response => {
+        for (const move of response.moves) {
+            highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'legal')
+        }
+    }).catch(error => {
+        clearHighlights();
         console.log(error);
     });
   }

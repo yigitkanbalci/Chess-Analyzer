@@ -90,6 +90,15 @@ ipcMain.handle('make-move', (event, moveString) => {
 
 });
 
+ipcMain.handle('legal-moves', (event, source) => {
+    let moves = game.moves({square:source, verbose: true});
+    if (moves) {
+      return { success:true, moves: moves};
+    } else {
+      return { success: false, error: "No valid moves"}
+    }
+});
+
 app.whenReady().then(createWindow);
 
 app.on('activate', () => {
