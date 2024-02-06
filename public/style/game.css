@@ -53,13 +53,22 @@ body {
 }
 
 .gameboard {
-    padding-left: 100px;
-    padding-right: 100px;
-    padding-bottom: 30px;
+    padding-left: 40px;
+    padding-right: 40px;
     border-left: thin ridge #333;
     border-right: thin ridge #333;
     border-bottom: thin ridge #333;
     
+}
+
+.square-55d63.highlight-white {
+    background-color: rgba(44, 224, 8, 0.5);
+    box-shadow: inset 0 0 10px #000;
+}
+
+.square-55d63.highlight-black {
+    background-color: rgba(44, 224, 8, 0.5);
+    box-shadow: inset 0 0 10px #fff;
 }
 
 .game-status {
