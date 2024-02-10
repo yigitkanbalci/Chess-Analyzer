@@ -3,11 +3,40 @@ const fileURLToPath = require('url');
 const path = require('path');
 const axios = require('axios');
 const { Chess } = require('chess.js');
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
+const { MockBinding } = require('@serialport/binding-mock');
+const { SerialPortStream } = require('@serialport/stream');
 
 
 let win;
 let modal;
 
+// const port = new SerialPort({ path: '/dev/tty.usbserial-11240', baudRate: 14400 });
+// const parser = port.pipe(new ReadlineParser({ delimiter: '\r\n' }))
+// parser.on('data', () => {
+//   console.log('data received');
+// });
+// port.write('data sent\n');
+
+app.commandLine.appendSwitch('enable-features','SharedArrayBuffer')
+
+// Create a port and enable the echo and recording.
+MockBinding.createPort('/dev/tty.usbserial-11240', { echo: true, record: true })
+const port = new SerialPortStream({ binding: MockBinding, path: '/dev/tty.usbserial-11240', baudRate: 14400 })
+
+/* Add some action for incoming data. For example,
+** print each incoming line in uppercase */
+const parser = new ReadlineParser()
+port.pipe(parser).on('data', line => {
+  console.log(line.toUpperCase())
+})
+
+// wait for port to open...
+port.on('open', () => {
+  // ...then test by simulating incoming data
+  port.port.emitData("Hello, world!\n")
+})
 
 const createWindow = () => {
   win = new BrowserWindow({
@@ -16,6 +45,7 @@ const createWindow = () => {
     webPreferences: {
       preload: path.join(__dirname, 'preload.js')
     }
+
   })
 
   win.loadFile('public/index.html')
@@ -29,7 +59,7 @@ const createWindow = () => {
 }
 
 ipcMain.handle('send-api-request', async () => {
-  let endpoint = `https://stockfish.online/api/stockfish.php?fen=${gameState}&depth=5&mode=bestmove`
+  let endpoint = `https://stockfish.online/api/stockfish.php?fen=${gameState}&depth=10&mode=bestmove`
   try {
     const response = await axios.get(endpoint);
     return response.data;
@@ -38,6 +68,7 @@ ipcMain.handle('send-api-request', async () => {
     throw error;
 }
 });
+
 
 const createOrReuseModalWindow = (url) => {
   if (modal && !modal.isDestroyed()) {
@@ -79,15 +110,27 @@ ipcMain.handle('show-move', (event, moveString) => {
   }
 });
 
-ipcMain.handle('make-move', (event, moveString) => {
-    let move = game.move(moveString, {verbose: true});
-    gameState = game.fen();
-    if (move && !game.isGameOver()) {
-      return { success: true, state: gameState, move: move, turn: game.turn() };
+ipcMain.handle('get-state', (event) => {
+    if (gameState) {
+      return { success: true, state: gameState, turn: game.turn()};
     } else {
-      return { success: false, error: "invalid move or game over" };
+      return { success: false, error: "Game state not found" };
     }
+})
 
+ipcMain.handle('make-move', (event, moveString) => {
+    let turn = game.turn();
+    try {
+      let move = game.move(moveString, {verbose: true});
+      gameState = game.fen();
+      if (move) {
+        return { success: true, state: gameState, move: move, turn: turn };
+      } else { 
+        return { success: false, error: "error making move"};
+      }
+    } catch {
+        throw new Error("error");
+    }
 });
 
 ipcMain.handle('legal-moves', (event, source) => {
