@@ -1,0 +1,72 @@
+{
+  "games": [
+    {
+      "id": 1,
+      "title": "lowdb is awesome",
+      "views": 100
+    },
+    {
+      "id": "b13d8fae-733a-47f2-a064-e07bb8255176",
+      "p1": "Yigitkan",
+      "p2": "Atakan",
+      "moves": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      ]
+    },
+    {
+      "id": 1,
+      "title": "lowdb is awesome",
+      "views": 100
+    },
+    {
+      "id": "84067b98-d57d-4bde-afa6-084fffd2dbb2",
+      "p1": "Yigitkan",
+      "p2": "Atakan",
+      "moves": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      ]
+    },
+    {
+      "id": 1,
+      "title": "lowdb is awesome",
+      "views": 100
+    },
+    {
+      "id": "39501474-b599-4fb9-91f5-247ca974d16d",
+      "p1": "atakan",
+      "p2": "yigitkan",
+      "moves": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      ]
+    },
+    {
+      "id": 1,
+      "title": "lowdb is awesome",
+      "views": 100
+    },
+    {
+      "id": "7b92b5dd-f614-4481-b630-92f7943e291b",
+      "p1": "asdga",
+      "p2": "asdgasdg",
+      "moves": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+      ]
+    },
+    {
+      "id": 1,
+      "title": "lowdb is awesome",
+      "views": 100
+    },
+    {
+      "id": "ad158b66-f53b-4f00-855d-f6d8e44df743",
+      "p1": "asdga",
+      "p2": "asdgasd",
+      "moves": [
+        "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+        "rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq - 0 1",
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/8/PPPP1PPP/RNBQKBNR w KQkq - 0 2",
+        "rnbqkbnr/pppp1ppp/8/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 1 2"
+      ]
+    }
+  ]
+}

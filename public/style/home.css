@@ -79,6 +79,19 @@ body {
     flex-direction: column;
 }
 
+.start-game-btn {
+    display: inline;
+    margin-left: 8px;
+    padding: 5px 5px;
+    border: thin ridge #333;
+    background-color: #f7ba24;
+}
+
+.start-game-btn:hover {
+    background-color: #b35f00;
+    cursor: pointer;
+}
+
 ul {
     list-style-type: none;
     padding: 0;
@@ -116,6 +129,30 @@ li:hover {
 
 .hidden {
     display: none;
+}
+
+.start-game {
+    margin-bottom: 10px;
+}
+
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 1; /* Sit on top */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+}
+
+.modal-content {
+    background-color: #fefefe;
+    margin: 15% auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
 }
 
 .fl-table {

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "desktop application for analyzing chess games",
   "main": "main.js",
-  "type": "commonjs",
+  "type": "module",
   "scripts": {
     "start": "electron-forge start",
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -29,9 +29,11 @@
     "browser-window": "^0.4.0",
     "chess.js": "^1.0.0-beta.7",
     "electron-squirrel-startup": "^1.0.0",
+    "lowdb": "^7.0.1",
     "node-fetch": "^2.6.1",
     "serialport": "^12.0.0",
-    "stockfish": "^16.0.0"
+    "stockfish": "^16.0.0",
+    "uuid": "^9.0.1"
   },
   "config": {
     "forge": {

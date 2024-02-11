@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
 });
 
 contextBridge.exposeInMainWorld('ChessAPI', {
+    startGame: (p1, p2) => ipcRenderer.invoke('start-game', p1, p2),
     showMove: (moveString) => ipcRenderer.invoke('show-move', moveString),
     makeMove: (moveString) => ipcRenderer.invoke('make-move', moveString),
     legalMoves: (source) => ipcRenderer.invoke('legal-moves', source),

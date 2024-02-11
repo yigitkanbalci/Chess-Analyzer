@@ -20,7 +20,7 @@
     <div class="container">
         <div class="sidebar">
             <ul>
-                <li><a href="#" class="nav-link">
+                <li><a href="home.html" class="nav-link">
                     <span class="item-icon">
                         <i class="fa-solid fa-chess-board"></i>
                     </span>
@@ -28,7 +28,7 @@
                         Dashboard
                     </span>
                 </a></li>
-                <li><a href="#" class="nav-link">
+                <li><a href="game.html" class="nav-link">
                     <span class="item-icon">
                         <i class="fa-solid fa-chess-knight"></i>
                     </span>
@@ -72,15 +72,27 @@
 
         <div class="active-games-body">
         <h5>Running Games</h5>
+        <div class="start-game"><h4 id="active-games">No available games, </h4>Start a new game! 
+            <div id="start-game-btn" class="start-game-btn"><i class="fa-solid fa-plus fa-xl"></i></div>
+            
+        </div>
 
-        <br>
+        <div id="playerModal" class="modal">
+            <div class="modal-content">
+              <h2>Enter Player Names</h2>
+              <input type="text" id="player1Name" placeholder="Player 1 Name">
+              <input type="text" id="player2Name" placeholder="Player 2 Name">
+              <button id="startGame">Start Game</button>
+            </div>
+          </div>
+        
         <div class="table-wrapper">
         <table id="gamesTable" class="fl-table">
             <thead>
                 <tr>
                     <th>Game ID</th>
-                    <th>Player 1</th>
-                    <th>Player 2</th>
+                    <th>White</th>
+                    <th>Black</th>
                     <th>Status</th>
                     <!-- Add more headers if needed -->
                 </tr>

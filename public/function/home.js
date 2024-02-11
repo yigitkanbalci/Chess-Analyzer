@@ -1,13 +1,11 @@
-const activeGames = [{"id": "1", "player1": "Mahmut", "player2": "Hasan", "lastmove": "Nf3",}, 
-                    {"id": "2", "player1": "Dave", "player2": "Mahmut", "lastmove": "Bg6"},
-                    {"id": "3", "player1": "James", "player2": "Atakan", "lastmove": "Bg7"} 
+const activeGames = [
     // Add your game objects here
 ];
 
 // Function to check for active games and update the UI
 function updateActiveGamesDisplay() {
     const gamesTable = document.getElementById('gamesTable');
-    const noActiveGames = document.getElementById('noActiveGames');
+    const noActiveGames = document.getElementById('active-games');
     
     if (activeGames.length > 0) {
         // Populate the table with active games
@@ -29,3 +27,33 @@ function updateActiveGamesDisplay() {
 }
 
 document.addEventListener('DOMContentLoaded', updateActiveGamesDisplay);
+
+
+const startGameBtn = document.getElementById('start-game-btn');
+
+startGameBtn.addEventListener('click', () => {
+    showModal();
+})
+
+const modal = document.getElementById('playerModal');
+
+function showModal() {
+    modal.style.display = 'block';
+}
+
+const startButton = document.getElementById('startGame');
+
+startButton.addEventListener('click', () => {
+    const player1Name = document.getElementById('player1Name').value.trim();
+    const player2Name = document.getElementById('player2Name').value.trim();
+
+    // Check if both player names are provided
+    if (player1Name && player2Name) {
+        // Names are provided, submit them for further processing
+        window.ChessAPI.startGame(player1Name, player2Name);
+        window.location.href = 'game.html';
+    } else {
+        // If not, alert the user or handle as appropriate
+        alert("Please enter names for both players.");
+    }
+});

@@ -33,6 +33,7 @@ function suggestMove(moveString) {
     clearHighlights();
     highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
     highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
+    suggestionContainer.innerHTML = 'Suggested best move: ' + moveString;
    }).catch(error => {
     console.log(error);
    });
@@ -107,6 +108,7 @@ function onDrop(source, target, piece, newPos, oldPos, orientation) {
         board1.position(oldPos);
         clearHighlights();
     });
+    suggestionContainer.innerHTML = 'Suggested Move';
 }
 
 function updateBoardAndState(response) {
