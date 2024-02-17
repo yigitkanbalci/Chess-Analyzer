@@ -1,9 +1,20 @@
-const activeGames = [
-    // Add your game objects here
-];
+var activeGames = [];
 
-// Function to check for active games and update the UI
-function updateActiveGamesDisplay() {
+async function loadGames() {
+    try {
+        const response = await window.ChessAPI.getGames();
+        activeGames = response.games;
+    } catch (error) {
+        console.log(error);
+    }
+}
+
+loadGames().then(() => {
+    console.log(activeGames);
+});
+
+async function updateActiveGamesDisplay() {
+    await loadGames();
     const gamesTable = document.getElementById('gamesTable');
     const noActiveGames = document.getElementById('active-games');
     
@@ -11,11 +22,13 @@ function updateActiveGamesDisplay() {
         // Populate the table with active games
         activeGames.forEach(game => {
             const row = gamesTable.insertRow();
-            row.innerHTML = `<td>${game.id}</td><td>${game.player1}</td><td>${game.player2}</td><td>${game.lastmove}</td>`;
+            let moves = game.moves;
+            row.innerHTML = `<td>${game.id}</td><td>${game.p1}</td><td>${game.p2}</td><td>${moves[moves.length - 1]}</td>`;
 
             row.addEventListener('click', () => {
                 // Navigate to the game's page
-                window.location.href = 'game.html'
+                
+                window.location.href = `game.html?gameId=${game.id}`;
             });
         });
         noActiveGames.classList.add('hidden');
@@ -50,8 +63,13 @@ startButton.addEventListener('click', () => {
     // Check if both player names are provided
     if (player1Name && player2Name) {
         // Names are provided, submit them for further processing
-        window.ChessAPI.startGame(player1Name, player2Name);
-        window.location.href = 'game.html';
+        window.ChessAPI.startGame(player1Name, player2Name).then(response => {
+            let game = response.game;
+            window.location.href = `game.html?gameId=${game.id}`;
+            console.log(window.location.href);
+        }).catch(error => {
+            console.log(error);
+        });
     } else {
         // If not, alert the user or handle as appropriate
         alert("Please enter names for both players.");

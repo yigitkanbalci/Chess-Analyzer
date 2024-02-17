@@ -14,6 +14,11 @@ contextBridge.exposeInMainWorld('ChessAPI', {
     makeMove: (moveString) => ipcRenderer.invoke('make-move', moveString),
     legalMoves: (source) => ipcRenderer.invoke('legal-moves', source),
     getState:  () => ipcRenderer.invoke('get-state'),
+    getGames: () => ipcRenderer.invoke('get-games'),
+});
+
+contextBridge.exposeInMainWorld('LowAPI', {
+    getGameById: (id) => ipcRenderer.invoke('get-game-by-id', id),
 });
 
 

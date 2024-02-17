@@ -15,6 +15,7 @@ var  config = {
     draggable: true,
     onDrop: onDrop,
     onDragStart: onDragStart,
+    onChange: onChange,
 }
 
 const board1 = Chessboard('board1', config);
@@ -24,16 +25,23 @@ var colorToHighlight = null
 
 const player1 = document.getElementById('player1-indicator');
 const player2 = document.getElementById('player2-indicator');
+
+const p1 = document.getElementById('p1-text');
+const p2 = document.getElementById('p2-text');
+
 var turn = 'w';
+var gameOver = false;
 player2.style.display = 'none';
 
 function suggestMove(moveString) {
    window.ChessAPI.showMove(moveString).then(response => {
     var move = response.move
-    clearHighlights();
-    highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
-    highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
-    suggestionContainer.innerHTML = 'Suggested best move: ' + moveString;
+    if (move) {
+        clearHighlights();
+        highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
+        highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
+        suggestionContainer.innerHTML = 'Suggested best move: ' + moveString;
+    }
    }).catch(error => {
     console.log(error);
    });
@@ -56,11 +64,11 @@ function highlightSquare(square, color, mode) {
 
 function changeTurn(turn) {
     if (turn === 'b') {
-        player1.style.display = 'inline';
-        player2.style.display = 'none';
-    } else {
-        player2.style.display = 'inline';
         player1.style.display = 'none';
+        player2.style.display = 'inline';
+    } else {
+        player2.style.display = 'none';
+        player1.style.display = 'inline';
     }
 }
 
@@ -102,13 +110,19 @@ function onDrop(source, target, piece, newPos, oldPos, orientation) {
             board1.position(oldPos);
             clearHighlights();
         } else {
+            if (response.game.gameOver) {
+                clearHighlights();
+                suggestionContainer.innerHTML = 'Game Over! winner is ' + response.game.winner;
+            }
             updateBoardAndState(response);
         }
     }).catch(error => {
         board1.position(oldPos);
         clearHighlights();
+        if (error.gameOver) {
+            suggestionContainer.innerHTML = 'Game Over! winner is ' + response.game.winner;
+        }
     });
-    suggestionContainer.innerHTML = 'Suggested Move';
 }
 
 function updateBoardAndState(response) {
@@ -128,14 +142,13 @@ function updateBoardAndState(response) {
             board1.move('a1-c1');
         }
     }
-    turn = response.turn;
+    turn = response.game.turn;
     changeTurn(turn);
     clearHighlights();
     board1.position(response.state, false);
 }
 
-
-  function onDragStart(source, piece) {
+function onDragStart(source, piece) {
     window.ChessAPI.legalMoves(source).then(response => {
         for (const move of response.moves) {
             highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'legal')
@@ -145,4 +158,44 @@ function updateBoardAndState(response) {
         console.log(error);
     });
   }
+
+  function getGameIdFromQuery() {
+    const queryParams = new URLSearchParams(window.location.search);
+    return queryParams.get('gameId');
+}
+
+async function loadGameDetails() {
+    const gameId = getGameIdFromQuery();
+    if (!gameId) {
+        console.error('Game ID is missing in the URL');
+        return;
+    }
+    
+    window.LowAPI.getGameById(gameId).then(response => {
+        let game = response.game;
+        turn = game.turn;
+        board1.position(game.lastMove);
+        gameOver = game.gameOver;
+        displayGameDetails(game);
+        if (gameOver) {
+            suggestionContainer.innerHTML = 'Game Over! winner is ' + game.winner;
+        }
+    })
+    
+}
+
+function displayGameDetails(game) {
+    changeTurn(game.turn);
+    p1.innerText = game.p1;
+    p2.innerText = game.p2;
+}
+
+function onChange(oldPos, newPos) {
+    if (!gameOver) {
+        suggestionContainer.innerHTML = 'Suggested move';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadGameDetails);
+
 

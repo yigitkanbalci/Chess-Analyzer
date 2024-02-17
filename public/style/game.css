@@ -39,6 +39,14 @@ body {
     background-color: #f7ba24;
 }
 
+#p1-text {
+    margin-left: 10px;
+}
+
+#p2-text {
+    margin-right: 10px;
+}
+
 #eval-button:active {
     background-color: #f7ba24;
     box-shadow: 0 5px #666;

@@ -6,10 +6,6 @@ import { app } from 'electron';
 
 const db = await JSONFilePreset('db.json', { games: [] })
 
-const post = { id: 1, title: 'lowdb is awesome', views: 100 }
-await db.update(({ games }) => games.push(post))
-// Ensure the database is initialized before using it
-// Define a unified db object for CRUD operations
 await db.read();
 
 const dbOperations = {
@@ -29,7 +25,7 @@ const dbOperations = {
   getGame: async (id) => {
     await db.read();
     let game = db.data.games.find(game => game.id === id);
-    return { success: true, message: 'Game found' };
+    return { success: true, message: 'Game found', game: game };
   },
 
   updateGame: async (id, gameUpdate) => {

@@ -26,7 +26,7 @@ const port = new SerialPortStream({ binding: MockBinding, path: '/dev/tty.usbser
 ** print each incoming line in uppercase */
 const parser = new ReadlineParser()
 port.pipe(parser).on('data', line => {
-  console.log(line.toUpperCase())
+  //console.log(line.toUpperCase())
 })
 
 // wait for port to open...
@@ -34,8 +34,7 @@ port.on('open', () => {
   // ...then test by simulating incoming data
   port.port.emitData("Hello, world!\n")
 })
-console.log(__dirname);
-console.log(path.join(__dirname, 'preload.js'));
+
 const createWindow = () => {
   win = new BrowserWindow({
     width: 960,
@@ -57,6 +56,8 @@ const createWindow = () => {
 }
 
 let gameObject;
+let gameState;
+let game;
 
 ipcMain.handle('send-api-request', async () => {
   let endpoint = `https://stockfish.online/api/stockfish.php?fen=${gameState}&depth=10&mode=bestmove`
@@ -98,29 +99,28 @@ ipcMain.on('open-new-window', (event, url) => {
   createOrReuseModalWindow(url);
 });
 
-ipcMain.handle('start-game', (event, p1, p2) => {
+ipcMain.handle('start-game', async (event, p1, p2) => { // Make the function async
   game = new Chess();
-  let id = uuidv4();
+  const id = uuidv4();
+  gameState = game.fen();
   gameObject = {
     id: id,
     p1: p1,
     p2: p2,
     moves: [],
+    gameOver: false,
+    turn: 'w',
+    lastMove: gameState,
   };
-  gameState = game.fen();
   gameObject.moves.push(gameState);
-  if (game) {
-    console.log('game started');
+  
+  try {
+    const response = await dbOperations.addGame(gameObject);
+    return { success: true, game: gameObject };
+  } catch (error) {
+    return { success: false, error: error.toString() };
   }
-
-  if (gameObject) {
-    dbOperations.addGame(gameObject).then(response => {
-      console.log(response.message);
-    }).catch(error => {
-      console.log(error);
-    });
-  }
-})
+});
 
 ipcMain.handle('end-game', (event) => {
   game.reset();
@@ -130,16 +130,19 @@ ipcMain.handle('is-game-over', (event) => {
   return { state: game.isGameOver() };
 })
 
-let game = null;
-let gameState = null;
-
 ipcMain.handle('show-move', (event, moveString) => {
-  let move = game.move(moveString, {verbose: true});
-  if (move && !game.isGameOver()) {
-    game.undo();
-    return {success: true, move: move};
-  } else {
-    return { success: false, error: "Invalid move or game over" };
+  try {
+    let move = game.move(moveString, {verbose: true});
+    if (move && !game.isGameOver()) {
+      game.undo();
+      return {success: true, move: move};
+    } 
+    if (game.isGameOver()) {
+      game.undo()
+      return { success: true, message: 'Check Mate!!', move: move}
+    } 
+  } catch {
+      return { success: false, error: 'Invalid move' };
   }
 });
 
@@ -152,26 +155,33 @@ ipcMain.handle('get-state', (event) => {
 })
 
 ipcMain.handle('make-move', (event, moveString) => {
-    let turn = game.turn();
     try {
       let move = game.move(moveString, {verbose: true});
       gameState = game.fen();
+      gameObject.lastMove = gameState;
       gameObject.moves.push(gameState);
-      if (game.isGameOver()) {
-        return { success: true, message: "gameover", gameOver: true };
-      }
-      else if (move) {
+      gameObject.turn = game.turn();
+      if (move) {
+        if (game.isGameOver()) {
+          gameObject.gameOver = game.isGameOver();
+          gameObject.turn = game.turn();
+          gameObject.winner = gameObject.turn === 'w' ? 'black' : 'white';
+        }
+
         dbOperations.updateGame(gameObject.id, gameObject).then(response => {
-          console.log(response.message);
         }).catch(error => {
           console.log(error);
         })
-        return { success: true, state: gameState, move: move, turn: turn };
-      } else { 
-        return { success: false, error: "error making move"};
-      }
+       
+        return { success: true, move: move, state: gameState, game: gameObject };  
+     }
     } catch {
-        throw new Error("error");
+        if (game.isGameOver()){ 
+          let winner = gameObject.turn === 'w' ? 'black' : 'white';
+          return { success: false, error: 'game is over', gameOver: true, winner: winner };
+        }
+        
+        return { success: false, error: 'unknown error' };
     }
 });
 
@@ -183,6 +193,30 @@ ipcMain.handle('legal-moves', (event, source) => {
       return { success: false, error: "No valid moves"}
     }
 });
+
+ipcMain.handle('get-games', (event) => {
+  return dbOperations.getGames().then(response => {
+    let activeGames = response.games;
+    return { success: true, games: activeGames };
+  }).catch(error => {
+    return { success: false, message: 'No active games found' };
+  });
+});
+
+ipcMain.handle('get-game-by-id', async (event, id) => {
+  try {
+    const response = await dbOperations.getGame(id);
+    gameObject = response.game;
+    game = new Chess();
+    gameState = gameObject.lastMove;
+    game.load(gameState);
+    gameObject.turn = game.turn();
+    return { success: true, message: "Game found in db", game: gameObject };
+  } catch (error) {
+    return { success: false, message: "Game not found in db", error: error.toString() };
+  }
+});
+
 
 app.whenReady().then(createWindow);
 
