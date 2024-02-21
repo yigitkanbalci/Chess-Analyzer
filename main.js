@@ -18,22 +18,27 @@ let modal;
 
 app.commandLine.appendSwitch('enable-features','SharedArrayBuffer')
 
-// Create a port and enable the echo and recording.
-MockBinding.createPort('/dev/tty.usbserial-11240', { echo: true, record: true })
-const port = new SerialPortStream({ binding: MockBinding, path: '/dev/tty.usbserial-11240', baudRate: 14400 })
-
-/* Add some action for incoming data. For example,
-** print each incoming line in uppercase */
-const parser = new ReadlineParser()
-port.pipe(parser).on('data', line => {
-  //console.log(line.toUpperCase())
+const port = new SerialPort({
+  path: '/dev/tty.usbserial-11220',
+  baudRate: 115200,
 })
 
-// wait for port to open...
-port.on('open', () => {
-  // ...then test by simulating incoming data
-  port.port.emitData("Hello, world!\n")
+port.setEncoding('utf-8');
+
+port.on('data', function (data) {
+  console.log('Data:', data);
 })
+
+function writeToMCU(data) {
+  port.write(data, function(err) {
+    if (err) {
+      return console.log('Error on write: ', err.message);
+    }
+    console.log('message written', data);
+  });
+}
+
+writeToMCU('Hello, MCU!\n');
 
 const createWindow = () => {
   win = new BrowserWindow({
@@ -99,7 +104,7 @@ ipcMain.on('open-new-window', (event, url) => {
   createOrReuseModalWindow(url);
 });
 
-ipcMain.handle('start-game', async (event, p1, p2) => { // Make the function async
+ipcMain.handle('start-game', async (event, p1, p2) => {
   game = new Chess();
   const id = uuidv4();
   gameState = game.fen();
