@@ -2,6 +2,7 @@
 // Source Code/views/function/game.js
 const evalButton = document.getElementById('eval-button');
 const suggestionContainer = document.getElementById('suggestion-box');
+const suggestionText = document.getElementById('suggestion-text')
 
 var engine = new Worker('./stockfish-nnue-16.js');
 
@@ -35,8 +36,11 @@ player2.style.display = 'none';
 
 function suggestMove(moveString) {
    window.ChessAPI.showMove(moveString).then(response => {
-    var move = response.move
+    console.log(response);
+    var move = response.move;
+    var resp = response.eval;
     if (move) {
+        suggestionText.innerHTML = resp;
         clearHighlights();
         highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
         highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
@@ -193,6 +197,7 @@ function displayGameDetails(game) {
 function onChange(oldPos, newPos) {
     if (!gameOver) {
         suggestionContainer.innerHTML = 'Suggested move';
+        suggestionText.innerHTML = '';
     }
 }
 

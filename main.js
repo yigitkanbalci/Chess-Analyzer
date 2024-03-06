@@ -9,6 +9,7 @@ import { MockBinding } from '@serialport/binding-mock';
 import { SerialPortStream } from '@serialport/stream';
 import dbOperations from './db/db.js';
 import {v4 as uuidv4 } from  'uuid';
+import {evaluateChessMove} from './public/function/gpt.js'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -135,16 +136,17 @@ ipcMain.handle('is-game-over', (event) => {
   return { state: game.isGameOver() };
 })
 
-ipcMain.handle('show-move', (event, moveString) => {
+ipcMain.handle('show-move', async (event, moveString) => {
   try {
     let move = game.move(moveString, {verbose: true});
+    let res = await evaluateChessMove(game.fen(), moveString);
     if (move && !game.isGameOver()) {
       game.undo();
-      return {success: true, move: move};
+      return {success: true, move: move, eval: res};
     } 
     if (game.isGameOver()) {
       game.undo()
-      return { success: true, message: 'Check Mate!!', move: move}
+      return { success: true, message: 'Check Mate!!', move: move, eval: res}
     } 
   } catch {
       return { success: false, error: 'Invalid move' };

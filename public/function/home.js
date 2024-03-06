@@ -23,6 +23,7 @@ async function updateActiveGamesDisplay() {
         activeGames.forEach(game => {
             const row = gamesTable.insertRow();
             let moves = game.moves;
+            if (!game.gameOver) {
             row.innerHTML = `<td>${game.id}</td><td>${game.p1}</td><td>${game.p2}</td><td>${moves[moves.length - 1]}</td>`;
 
             row.addEventListener('click', () => {
@@ -30,6 +31,7 @@ async function updateActiveGamesDisplay() {
                 
                 window.location.href = `game.html?gameId=${game.id}`;
             });
+        }
         });
         noActiveGames.classList.add('hidden');
     } else {
