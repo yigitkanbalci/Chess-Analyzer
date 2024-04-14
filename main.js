@@ -1,5 +1,5 @@
 import { app, BrowserWindow, ipcMain} from 'electron';
-import path from 'path';
+import path, { parse } from 'path';
 import { fileURLToPath } from 'url';
 import axios from 'axios';
 import { Chess } from 'chess.js';
@@ -10,36 +10,80 @@ import { SerialPortStream } from '@serialport/stream';
 import dbOperations from './db/db.js';
 import {v4 as uuidv4 } from  'uuid';
 import {evaluateChessMove} from './public/function/gpt.js'
+import { write } from 'fs';
+import { handlers, MessageTypes } from './public/function/controller.js';
+
+// // const INACTIVITY_THRESHOLD = 2000; // 10 seconds, adjust as needed
+// // let inactivityTimeout;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 let win;
 let modal;
+let portPath;
+let baudRate = 115200;
 
 app.commandLine.appendSwitch('enable-features','SharedArrayBuffer')
 
+const ports = await SerialPort.list();
+  const nonBluetoothPorts = ports.filter(port => !port.path.includes('Bluetooth'));
+
+  if (nonBluetoothPorts.length > 0) {
+      portPath = nonBluetoothPorts[0].path; // Assume the first non-Bluetooth port is the ESP32
+  } else {
+    console.error('No suitable serial port found');
+  }
+
 const port = new SerialPort({
-  path: '/dev/tty.usbserial-11220',
-  baudRate: 115200,
+  path: portPath,
+  baudRate: baudRate,
 })
 
-port.setEncoding('utf-8');
+const parser = port.pipe(new ReadlineParser({ delimiter: '\n' }));
 
-port.on('data', function (data) {
-  console.log('Data:', data);
-})
-
-function writeToMCU(data) {
-  port.write(data, function(err) {
-    if (err) {
-      return console.log('Error on write: ', err.message);
+parser.on('data', function(data) {
+  // clearTimeout(inactivityTimeout);
+  // inactivityTimeout = setTimeout(() => {
+  //   win.webContents.send('clear-tiles');
+  // }, INACTIVITY_THRESHOLD);
+  console.log(data);
+  try {
+    // Try to parse the incoming data as JSON.
+    const obj = JSON.parse(data);
+    port.write(JSON.stringify({data: "ack"}));
+    if (obj.data == "piece"){
+      console.log(`Type: ${obj.type}, Color: ${obj.color}, EEPROM ID: ${obj.eeprom_id}`);
     }
-    console.log('message written', data);
-  });
-}
+    
+    if (obj.data == "error"){
+      console.log(`Type: ${obj.type}, Color: ${obj.color}, EEPROM ID: ${obj.eeprom_id}`);
+    }
 
-writeToMCU('Hello, MCU!\n');
+    if(obj.data == "tile"){
+      console.log(`Tile ID: `)
+      console.log(obj.tile);
+      //send tile to renderer side to UI
+      win.webContents.send('tile', obj);
+    }
+
+    if (obj.data == "echo") {
+      console.log(`Echo: ${obj.echo}`);
+      //send echo to renderer side to UI
+      win.webContents.send('echo', obj);
+    }
+
+    if (obj.data == "move") {
+      console.log(`Move: ${obj.move}`);
+      //send move to renderer side to UI
+      win.webContents.send('move', obj);
+    }
+
+  } catch (e) {
+    // You might want to log or handle incomplete or corrupted data here.
+    //console.log("Error parsing JSON:", e);
+  }
+});
 
 const createWindow = () => {
   win = new BrowserWindow({
@@ -64,6 +108,8 @@ const createWindow = () => {
 let gameObject;
 let gameState;
 let game;
+let prevState;
+let currState;
 
 ipcMain.handle('send-api-request', async () => {
   let endpoint = `https://stockfish.online/api/stockfish.php?fen=${gameState}&depth=10&mode=bestmove`
@@ -106,6 +152,9 @@ ipcMain.on('open-new-window', (event, url) => {
 });
 
 ipcMain.handle('start-game', async (event, p1, p2) => {
+  handlers.sendMessage(MessageTypes.VALIDATE_POSITIONS, "validate", port);
+  await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay
+  handlers.sendMessage(MessageTypes.START_GAME, "start", port);
   game = new Chess();
   const id = uuidv4();
   gameState = game.fen();
@@ -138,14 +187,20 @@ ipcMain.handle('is-game-over', (event) => {
 
 ipcMain.handle('show-move', async (event, moveString) => {
   try {
+    const start = performance.now();
     let move = game.move(moveString, {verbose: true});
     let res = await evaluateChessMove(game.fen(), moveString);
+    //let res = '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
     if (move && !game.isGameOver()) {
       game.undo();
+      const end = performance.now();
+      console.log(`Time taken to execute show-move request: ${end - start}ms.`)
       return {success: true, move: move, eval: res};
     } 
     if (game.isGameOver()) {
       game.undo()
+      const end = performance.now();
+      console.log(`Time taken to execute show-move request: ${end - start}ms.`)
       return { success: true, message: 'Check Mate!!', move: move, eval: res}
     } 
   } catch {
@@ -163,7 +218,12 @@ ipcMain.handle('get-state', (event) => {
 
 ipcMain.handle('make-move', (event, moveString) => {
     try {
+      const start = performance.now();
+      prevState = game.fen();
+      console.log(game.fen());
       let move = game.move(moveString, {verbose: true});
+      console.log(game.fen());
+      currState = game.fen();
       gameState = game.fen();
       gameObject.lastMove = gameState;
       gameObject.moves.push(gameState);
@@ -180,6 +240,8 @@ ipcMain.handle('make-move', (event, moveString) => {
           console.log(error);
         })
        
+        const end = performance.now();
+        console.log(`Time taken to execute make-move handler: ${end - start}ms.`)
         return { success: true, move: move, state: gameState, game: gameObject };  
      }
     } catch {
@@ -188,13 +250,21 @@ ipcMain.handle('make-move', (event, moveString) => {
           return { success: false, error: 'game is over', gameOver: true, winner: winner };
         }
         
-        return { success: false, error: 'unknown error' };
+        console.log("invalid move");
+        return { success: false, error: 'invalid move' };
     }
 });
 
 ipcMain.handle('legal-moves', (event, source) => {
+    port.write(source);
     let moves = game.moves({square:source, verbose: true});
+    console.log(game.turn());
     if (moves) {
+      for (let i = 0; i < moves.length; i++) {
+        let moveObj = moves[i];
+        let to = moveObj.to;
+        handlers.sendTile(to, port);
+      }
       return { success:true, moves: moves};
     } else {
       return { success: false, error: "No valid moves"}
@@ -234,3 +304,12 @@ app.on('activate', () => {
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
+
+port.on('error', function(err) {
+  console.log('Error: ', err.message);
+});
+
+port.on('data', function(data) {
+  console.log('Data received: ' + data);
+});
+

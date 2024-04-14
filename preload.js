@@ -6,7 +6,11 @@ console.log('preload loaded');
 contextBridge.exposeInMainWorld('electronAPI', {
     openNewWindow: (url) => ipcRenderer.send('open-new-window', url),
     sendAPIRequest: () => ipcRenderer.invoke('send-api-request'),
+    onTileReceived: (callback) => ipcRenderer.on('tile', (event, obj) => callback(obj)),
+    onClearTiles: (callback) => ipcRenderer.on('clear-tiles', () => callback()),
+    onMoveReceived: (callback) => ipcRenderer.on('move', (event, obj) => callback(obj)),
 });
+
 
 contextBridge.exposeInMainWorld('ChessAPI', {
     startGame: (p1, p2) => ipcRenderer.invoke('start-game', p1, p2),

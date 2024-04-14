@@ -45,6 +45,7 @@ document.addEventListener('DOMContentLoaded', updateActiveGamesDisplay);
 
 
 const startGameBtn = document.getElementById('start-game-btn');
+const closeModalBtn = document.getElementById('closeModal');
 
 startGameBtn.addEventListener('click', () => {
     showModal();
@@ -55,6 +56,14 @@ const modal = document.getElementById('playerModal');
 function showModal() {
     modal.style.display = 'block';
 }
+
+function hideModal() {
+    modal.style.display = 'none';
+}
+
+closeModalBtn.addEventListener('click', () => {
+    hideModal();
+})
 
 const startButton = document.getElementById('startGame');
 

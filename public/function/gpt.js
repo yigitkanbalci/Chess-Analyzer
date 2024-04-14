@@ -8,12 +8,15 @@ const openai = new OpenAI(process.env.OPENAI_API_KEY);
 
 async function evaluateChessMove(fenString, moveString) {
     try {
+      const start = performance.now();
       const response = await openai.chat.completions.create({
         model: "gpt-3.5-turbo",
         messages: [{role:'user', content:`Evaluate why the following chess move, "${moveString}" in the given position FEN string: "${fenString}" is good move to make. Use no more than 100 tokens.`}],
         max_tokens: 100,
       });
   
+      const end = performance.now();
+      console.log(`Time taken to execute GPT request: ${end - start}ms.`)
       return response.choices[0].message.content.trim();
     } catch (error) {
       console.error("Error querying OpenAI:", error);

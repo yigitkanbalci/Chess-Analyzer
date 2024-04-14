@@ -29,7 +29,7 @@
                         Dashboard
                     </span>
                 </a></li>
-                <li><a href="#" class="nav-link">
+                <li><a href="history.html" class="nav-link">
                     <span class="item-icon">
                         <i class="fa-solid fa-clock"></i>
                     </span>
@@ -57,8 +57,8 @@
         </div>
         <div class="gameboard">
             <div class="game-status">
-                <h3 id="player1"><i id="player1-indicator" class="fa-solid fa-chess"></i><span id="p1-text"> Player 1</span></h3>
-                <h3 id="player2"><span id="p2-text"> Player 2</span><i id="player2-indicator" class="fa-solid fa-chess"></i></h3>
+                <h3 id="player1"><i id="player1-indicator" class="fa-solid fa-chess"></i><span class="underline" id="p1-text"> Player 1</span></h3>
+                <h3 id="player2"><span class="underline" id="p2-text"> Player 2</span><i id="player2-indicator" class="fa-solid fa-chess"></i></h3>
             </div>
         <div id="chessboard" class="chessboard">
             <div id="board1" style="width: 400px"></div>
@@ -67,12 +67,32 @@
         <div id="suggestion-container">
             <div class="trainer">Analysis Box</div>
             <h5>Get real time analysis and suggestion!</h5>
-            <br>
             <button id="eval-button"><i id="book-icon" class="fa-solid fa-book"></i> Suggest a move</button>
-            <p id="suggestion-box">Suggested move</p>
-            <p id="suggestion-text"></p>
+            <section class="card cyan">
+                <p id="suggestion-box">Suggested move</p>
+                <p id="suggestion-text"></p>
+              </section>
+            
+        </div>
+        <!-- <div class="footer-bar">
+            <div class="team-info">Developed by team 14</div>
+        </div> -->    
+        <div id="history-container">
+        <div class="trainer">Move History</div>
+        <table id="move-history-table">
+            <tr>
+                <td>
+                    <div onclick="resetBoard()" class="card-divs move-card"># 0 | Game Start</div>
+                </td> <!-- Cell where the card will be added -->
+            </tr>
+        </table>
         </div>
     </div>
+
+
+
+    
+
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"
         integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2"
         crossorigin="anonymous"></script>

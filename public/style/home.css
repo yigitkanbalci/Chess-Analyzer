@@ -20,6 +20,14 @@ body {
     width: 100%;
 }
 
+#startGame:hover {
+    cursor: pointer;
+}
+
+#closeModal:hover {
+    cursor: pointer;
+}
+
 .top-bar {
     height: 100px;
     background-color: #333;
