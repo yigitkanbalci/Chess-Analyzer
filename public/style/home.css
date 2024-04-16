@@ -28,6 +28,10 @@ body {
     cursor: pointer;
 }
 
+.close-modal:hover {
+    cursor: pointer;
+}
+
 .top-bar {
     height: 100px;
     background-color: #333;

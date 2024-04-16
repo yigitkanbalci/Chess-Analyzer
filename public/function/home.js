@@ -67,14 +67,14 @@ closeModalBtn.addEventListener('click', () => {
 
 const startButton = document.getElementById('startGame');
 
-startButton.addEventListener('click', () => {
+startButton.addEventListener('click', async () => {
     const player1Name = document.getElementById('player1Name').value.trim();
     const player2Name = document.getElementById('player2Name').value.trim();
 
     // Check if both player names are provided
     if (player1Name && player2Name) {
         // Names are provided, submit them for further processing
-        window.ChessAPI.startGame(player1Name, player2Name).then(response => {
+        await window.ChessAPI.startGame(player1Name, player2Name).then(response => {
             let game = response.game;
             window.location.href = `game.html?gameId=${game.id}`;
             console.log(window.location.href);
@@ -86,3 +86,27 @@ startButton.addEventListener('click', () => {
         alert("Please enter names for both players.");
     }
 });
+
+const errorModal = document.getElementById('errorModal');
+const closeErrorModalBtn = document.getElementById('close-error-modal');
+const modalTitle = document.getElementById('modal-error-title');
+const modalText = document.getElementById('modal-error-text');
+const validateFixBtn = document.getElementById('validateFix');
+
+function handleErrorReceived(obj) {
+    console.log(obj);
+    modalTitle.innerText = obj.title;
+    modalText.innerText = obj.text;
+    showModal();
+}
+
+closeErrorModalBtn.addEventListener('click', () => {
+    hideModal();
+})
+
+validateFixBtn.addEventListener('click', () => {
+    // Validate if error is fixed on the UI side
+    hideModal();
+})
+
+window.electronAPI.onErrorReceived(handleErrorReceived);

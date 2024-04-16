@@ -51,32 +51,37 @@ parser.on('data', function(data) {
   try {
     // Try to parse the incoming data as JSON.
     const obj = JSON.parse(data);
-    port.write(JSON.stringify({data: "ack"}));
     if (obj.data == "piece"){
       console.log(`Type: ${obj.type}, Color: ${obj.color}, EEPROM ID: ${obj.eeprom_id}`);
     }
     
     if (obj.data == "error"){
-      console.log(`Type: ${obj.type}, Color: ${obj.color}, EEPROM ID: ${obj.eeprom_id}`);
+      //send error to renderer side UI
+      console.log(`Error: ${obj.message}`);
+      win.webContents.send('error', obj);
     }
 
     if(obj.data == "tile"){
-      console.log(`Tile ID: `)
-      console.log(obj.tile);
       //send tile to renderer side to UI
       win.webContents.send('tile', obj);
     }
 
     if (obj.data == "echo") {
-      console.log(`Echo: ${obj.echo}`);
+      console.log(`Echo: ${obj.message}`);
       //send echo to renderer side to UI
       win.webContents.send('echo', obj);
     }
 
     if (obj.data == "move") {
+      if (obj.move == "No move") {
+        win.webContents.send('clear-tiles')
+      } else {
+        win.webContents.send('move', obj);
+      }
+      
       console.log(`Move: ${obj.move}`);
       //send move to renderer side to UI
-      win.webContents.send('move', obj);
+
     }
 
   } catch (e) {
@@ -123,7 +128,7 @@ ipcMain.handle('send-api-request', async () => {
 });
 
 
-const createOrReuseModalWindow = (url) => {
+const createOrReuseModalWindow = (content, type) => {
   if (modal && !modal.isDestroyed()) {
     modal.focus();
   } else {
@@ -141,19 +146,21 @@ const createOrReuseModalWindow = (url) => {
       modal = null;
     });
   }
-  modal.loadURL(url);
+  if (type === 'url') {
+    modal.loadURL(content);
+  } else if (type === 'html') {
+    modal.loadURL(`data:text/html;charset=utf-8,${encodeURI(content)}`);
+  }
   modal.once('ready-to-show', () => {
     modal.show();
   });
 }
 
-ipcMain.on('open-new-window', (event, url) => {
-  createOrReuseModalWindow(url);
+ipcMain.on('open-new-window', (event, content, type) => {
+  createOrReuseModalWindow(content, type);
 });
 
 ipcMain.handle('start-game', async (event, p1, p2) => {
-  handlers.sendMessage(MessageTypes.VALIDATE_POSITIONS, "validate", port);
-  await new Promise(resolve => setTimeout(resolve, 1000)); // 1s delay
   handlers.sendMessage(MessageTypes.START_GAME, "start", port);
   game = new Chess();
   const id = uuidv4();
@@ -179,6 +186,7 @@ ipcMain.handle('start-game', async (event, p1, p2) => {
 
 ipcMain.handle('end-game', (event) => {
   game.reset();
+  handlers.sendMessage(MessageTypes.END_GAME, "end", port);
 })
 
 ipcMain.handle('is-game-over', (event) => {
@@ -190,7 +198,6 @@ ipcMain.handle('show-move', async (event, moveString) => {
     const start = performance.now();
     let move = game.move(moveString, {verbose: true});
     let res = await evaluateChessMove(game.fen(), moveString);
-    //let res = '"Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.';
     if (move && !game.isGameOver()) {
       game.undo();
       const end = performance.now();
@@ -205,6 +212,15 @@ ipcMain.handle('show-move', async (event, moveString) => {
     } 
   } catch {
       return { success: false, error: 'Invalid move' };
+  }
+});
+
+ipcMain.handle('validate-board', (event) => {
+  try {
+    handlers.sendMessage(MessageTypes.VALIDATE_BOARD, "validate", port);
+    return { success: true, state: game.fen() };
+  } catch {
+    return { success: false, error: 'Invalid board' };
   }
 });
 
@@ -225,6 +241,7 @@ ipcMain.handle('make-move', (event, moveString) => {
       console.log(game.fen());
       currState = game.fen();
       gameState = game.fen();
+      console.log(move)
       gameObject.lastMove = gameState;
       gameObject.moves.push(gameState);
       gameObject.turn = game.turn();
@@ -247,24 +264,22 @@ ipcMain.handle('make-move', (event, moveString) => {
     } catch {
         if (game.isGameOver()){ 
           let winner = gameObject.turn === 'w' ? 'black' : 'white';
+          handlers.sendMessage(MessageTypes.END_GAME, "game end", port);
           return { success: false, error: 'game is over', gameOver: true, winner: winner };
         }
-        
-        console.log("invalid move");
+        handlers.sendMessage(MessageTypes.INVALID_MOVE, "invalid", port);
         return { success: false, error: 'invalid move' };
     }
 });
 
 ipcMain.handle('legal-moves', (event, source) => {
-    port.write(source);
     let moves = game.moves({square:source, verbose: true});
     console.log(game.turn());
     if (moves) {
-      for (let i = 0; i < moves.length; i++) {
-        let moveObj = moves[i];
-        let to = moveObj.to;
-        handlers.sendTile(to, port);
-      }
+      let movesString = moves.map(move => {
+        return move.to;
+      }).join(', ');
+      handlers.sendMessage(MessageTypes.LEGAL_MOVES, movesString, port);
       return { success:true, moves: moves};
     } else {
       return { success: false, error: "No valid moves"}
@@ -307,9 +322,5 @@ app.on('window-all-closed', () => {
 
 port.on('error', function(err) {
   console.log('Error: ', err.message);
-});
-
-port.on('data', function(data) {
-  console.log('Data received: ' + data);
 });
 

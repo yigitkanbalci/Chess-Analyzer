@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onTileReceived: (callback) => ipcRenderer.on('tile', (event, obj) => callback(obj)),
     onClearTiles: (callback) => ipcRenderer.on('clear-tiles', () => callback()),
     onMoveReceived: (callback) => ipcRenderer.on('move', (event, obj) => callback(obj)),
+    onErrorReceived: (callback) => ipcRenderer.on('error', (event, obj) => callback(obj)),
 });
 
 
@@ -19,6 +20,8 @@ contextBridge.exposeInMainWorld('ChessAPI', {
     legalMoves: (source) => ipcRenderer.invoke('legal-moves', source),
     getState:  () => ipcRenderer.invoke('get-state'),
     getGames: () => ipcRenderer.invoke('get-games'),
+    endGame: () => ipcRenderer.invoke('end-game'),
+    validateBoard: () => ipcRenderer.invoke('validate-board'),
 });
 
 contextBridge.exposeInMainWorld('LowAPI', {

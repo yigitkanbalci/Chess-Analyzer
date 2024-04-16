@@ -23,7 +23,7 @@ export const handlers = {
           if (err) {
             return console.log('Error on write:', err.message);
           }
-          console.log('Message sent');
+          console.log('Message sent: ', message);
         });
     },
 };

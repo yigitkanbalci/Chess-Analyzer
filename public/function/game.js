@@ -23,6 +23,11 @@ const board1 = Chessboard('board1', config);
 var squareClass = 'square-55d63'
 var squareToHighlight = null
 var colorToHighlight = null
+var cachedResponse = {
+    moveString: null,
+    move: null,
+    resp: null
+}
 
 const player1 = document.getElementById('player1-indicator');
 const player2 = document.getElementById('player2-indicator');
@@ -41,11 +46,9 @@ function suggestMove(moveString) {
     var move = response.move;
     var resp = response.eval;
     if (move) {
-        suggestionText.innerText = resp;
-        clearHighlights();
-        highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
-        highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
-        suggestionBox.innerHTML = 'Suggested best move: ' + moveString;
+       cachedResponse.moveString = moveString;
+        cachedResponse.move = move;
+        cachedResponse.resp = resp;
     }
     const end = performance.now();
     console.log(`Time taken to execute suggestMove function: ${end - start}ms.`)
@@ -53,6 +56,14 @@ function suggestMove(moveString) {
     console.log(error);
    });
 };
+
+function displayBestMove(moveString, move, resp) {
+    suggestionText.innerText = resp;
+    clearHighlights();
+    highlightSquare(move.from, move.color === 'w' ? 'white' : 'black', 'best');
+    highlightSquare(move.to, move.color === 'w' ? 'white' : 'black', 'best');
+    suggestionBox.innerHTML = 'Suggested best move: ' + moveString;
+}
 
 function clearHighlights() {
     document.querySelectorAll('.' + squareClass).forEach(square => {
@@ -79,7 +90,18 @@ function changeTurn(turn) {
     }
 }
 
-function getSuggestion(pos) {
+function getSuggestion() {
+    window.ChessAPI.getState().then(response => {
+        const searchStr = 'position fen ' + response.state;
+        runEngine(searchStr).then(rec => {
+            let moveString = rec.slice(0, 2) + '-' + rec.slice(2);
+            suggestMove(moveString);
+        });
+    });
+}
+
+function runEngine(pos) {
+    
     return new Promise((resolve, reject) => {
         // Set up a temporary message handler to capture the best move
         const tempHandler = event => {
@@ -101,18 +123,11 @@ function getSuggestion(pos) {
 }
 
 evalButton.addEventListener('click', () => {
-    window.ChessAPI.getState().then(response => {
-        const searchStr = 'position fen ' + response.state;
-        getSuggestion(searchStr).then(rec => {
-            let moveString = rec.slice(0, 2) + '-' + rec.slice(2);
-            suggestMove(moveString);
-        });
-    });
+    displayBestMove(cachedResponse.moveString, cachedResponse.move, cachedResponse.resp);
 });
 
 function handleTileReceived(obj) {
     console.log('Tile received', obj.tile);
-    console.log('here')
     window.ChessAPI.legalMoves(obj.tile).then(response => {
         console.log(response)
         for (const move of response.moves) {
@@ -122,6 +137,8 @@ function handleTileReceived(obj) {
         clearHighlights();
         console.log(error);
     });
+
+    getSuggestion();
 }
 
 function handleMoveReceived(obj) {
@@ -134,8 +151,10 @@ function handleMoveReceived(obj) {
             if (response.game.gameOver) {
                 clearHighlights();
                 suggestionBox.innerHTML = 'Game Over! winner is'+ response.game.winner;
+                window.ChessAPI.endGame();
             }
             updateBoardAndState(response);
+            clearHighlights();
         }
     }).catch(error => {
         board1.position(oldPos);
@@ -411,3 +430,36 @@ function compareStates (state1, state2) {
         return null; // No move found or the boards are identical
     }
 }
+
+const modal = document.getElementById('errorModal');
+const closeModalBtn = document.getElementById('close-error-modal');
+const modalTitle = document.getElementById('modal-error-title');
+const modalText = document.getElementById('modal-error-text');
+const backHomeBtn = document.getElementById('backHome');
+
+function showModal() {
+    modal.style.display = 'block';
+}
+
+function hideModal() {
+    modal.style.display = 'none';
+}
+
+function handleErrorReceived(obj) {
+    console.log(obj);
+    modalTitle.innerText = obj.title;
+    modalText.innerText = obj.text;
+    showModal();
+}
+
+closeModalBtn.addEventListener('click', () => {
+    hideModal();
+})
+
+backHomeBtn.addEventListener('click', () => {
+    // Validate if error is fixed on the UI side
+    //hideModal();
+    window.location.href = 'home.html';
+})
+
+window.electronAPI.onErrorReceived(handleErrorReceived);
