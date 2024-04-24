@@ -161,6 +161,7 @@ ipcMain.on('open-new-window', (event, content, type) => {
 });
 
 ipcMain.handle('start-game', async (event, p1, p2) => {
+  //handlers.sendMessage(MessageTypes.LEGAL_MOVES, "legal", port);
   handlers.sendMessage(MessageTypes.START_GAME, "start", port);
   game = new Chess();
   const id = uuidv4();
@@ -303,12 +304,22 @@ ipcMain.handle('get-game-by-id', async (event, id) => {
     gameState = gameObject.lastMove;
     game.load(gameState);
     gameObject.turn = game.turn();
+    let gameBoard = JSON.stringify(game.board());
+    //handlers.sendMessage(MessageTypes.LOAD_GAME, gameBoard, port);
     return { success: true, message: "Game found in db", game: gameObject };
   } catch (error) {
     return { success: false, message: "Game not found in db", error: error.toString() };
   }
 });
 
+// ipcMain.handle('test-leds', async (event) => {
+//   try {
+//     handlers.sendMessage(MessageTypes.LEGAL_MOVES, "legal", port);
+//     return { success: true};
+//   } catch (error) {
+//     return { success: false, message: "No games found for player", error: error.toString() };
+//   }
+// });
 
 app.whenReady().then(createWindow);
 

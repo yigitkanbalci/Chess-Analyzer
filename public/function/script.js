@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
+
     const startButton = document.getElementById('startButton');
     startButton.addEventListener('click', () => {
+        //window.electronAPI.testLEDs();
         if (window.electronAPI && window.electronAPI.openNewWindow) {
             window.electronAPI.openNewWindow('/views/home.html');
         } else {

@@ -36,5 +36,6 @@ export const MessageTypes = {
     SUGGESTED_MOVE: 0x05,
     END_GAME: 0x06,
     VALIDATE_POSITIONS: 0x07,
-    RESET: 0x08,
+    LOAD_GAME: 0x08,
+    RESET: 0x09,
 };

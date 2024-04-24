@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld('electronAPI', {
     onClearTiles: (callback) => ipcRenderer.on('clear-tiles', () => callback()),
     onMoveReceived: (callback) => ipcRenderer.on('move', (event, obj) => callback(obj)),
     onErrorReceived: (callback) => ipcRenderer.on('error', (event, obj) => callback(obj)),
+    testLEDs: () => ipcRenderer.invoke('test-leds'),
 });
 
 
